@@ -1,20 +1,57 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import {
+  Text, View, ActivityIndicator,
+} from "react-native";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+import { Home } from "./Components/Home"
+import { Login } from "./Components/LoginScreen";
+import { Signup } from "./Components/Signup"
+import { SignOut } from "./Components/firestore";
+import { ForgotPassword } from "./Components/ForgotPassword";
+import { VerificationScreen } from "./Components/VerificationScreen"
+
+import { getLogin } from "./Components/AsyncStorage";
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const InitializeSignin = (setCurrentUser, setLoading) => {
+  // SignOut();
+  getLogin(setCurrentUser, setLoading);
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const Stack = createNativeStackNavigator();
+export default function App() {
+  const [isLoading, setLoading] = React.useState(true);
+  const [CurrentUser, setCurrentUser] = React.useState(null);
+  React.useState(() => {
+    InitializeSignin(setCurrentUser, setLoading);
+  }, [])
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          padding: 20,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator size="large" color="blue" />
+        <Text style={{ fontSize: 32 }}>Signing In</Text>
+      </View>
+    );
+  }
+
+  return (
+    < NavigationContainer >
+      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={CurrentUser == null ? "Login" : CurrentUser.emailVerified ? "Home" : "Login"}>
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Forgot Password" component={ForgotPassword} />
+        <Stack.Screen name="Signup" component={Signup} />
+        <Stack.Screen name="Verification" component={VerificationScreen} />
+        <Stack.Screen name="Home" component={Home} />
+      </Stack.Navigator>
+    </ NavigationContainer >
+  );
+}
