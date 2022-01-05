@@ -27,6 +27,7 @@ const firebaseConfig = initializeApp({
 const auth = getAuth();
 export const db = getFirestore();
 
+
 export const initialize = () => {
   console.log(auth.currentUser)
   return auth.currentUser;
