@@ -7,6 +7,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SaveLogin } from "./AsyncStorage";
 
 import {
+  doc, getDoc
+} from "firebase/firestore";
+
+import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -16,13 +20,14 @@ import {
   reauthenticateWithCredential, updateProfile
 } from "firebase/auth";
 
+//Configurations For FireBase
 const firebaseConfig = initializeApp({
-  apiKey: "AIzaSyBhjN_mAVV4cM-BYOGoVZASewRYs2SHCRM",
-  authDomain: "fir-test-42b4e.firebaseapp.com",
-  projectId: "fir-test-42b4e",
-  storageBucket: "fir-test-42b4e.appspot.com",
-  messagingSenderId: "24649484321",
-  appId: "1:24649484321:web:7c5b526c8064b293977b60",
+  apiKey: "AIzaSyCn5nCGoZKzc9TpCRA0qUqcOdqqJ6zhw1E",
+  authDomain: "test-1e0fe.firebaseapp.com",
+  projectId: "test-1e0fe",
+  storageBucket: "test-1e0fe.appspot.com",
+  messagingSenderId: "471857485313",
+  appId: "1:471857485313:web:a5909a2d1a5ece9d579200"
 });
 const auth = getAuth();
 export const db = getFirestore();
@@ -32,20 +37,6 @@ export const initialize = () => {
   console.log(auth.currentUser)
   return auth.currentUser;
 }
-
-// onAuthStateChanged(auth, (user) => {
-//   if (user) {
-//     // console.log(uid);
-//     // console.log(user.displayName);
-//     // const uid = user.uid;
-//     // console.log(user.email);
-//     // ...
-//   } else {
-//     console.log("You've been Signed Out Dude!");
-//     // User is signed out
-//     // ...
-//   }
-// });
 
 export const Create_Account = (userEmail, userPass, Name, setResponse, setModalVisible) => {
   console.log("here");
@@ -69,26 +60,33 @@ export const Create_Account = (userEmail, userPass, Name, setResponse, setModalV
     });
 };
 
-export const SignIn = (userEmail, userPass, setResponse, navigation) => {
-  console.log("Signing In");
-  signInWithEmailAndPassword(auth, userEmail, userPass)
-    .then((userCredential) => {
-      // Signed in
-      const user = userCredential.user;
-      SaveLogin(user);
-      if (user.emailVerified)
-        navigation.replace("Home");
-      else {
-        navigation.navigate("Verification", { tempuser: user });
-      }
-      // ...
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log(errorMessage);
-      setResponse("Invalid Credidentials");
-    });
+export const SignIn = async (userEmail, userPass, setResponse, navigation) => {
+
+  const docSnap = await getDoc(doc(db, "Clients", userEmail));
+
+  if (docSnap.exists()) {
+    console.log("Signing In");
+    signInWithEmailAndPassword(auth, userEmail, userPass)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        SaveLogin(user);
+        if (user.emailVerified)
+          navigation.replace("Home", { Email: userEmail });
+        else {
+          navigation.navigate("Verification", { tempuser: user });
+        }
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorMessage);
+        setResponse("Invalid Credidentials");
+      });
+  } else {
+    setResponse("Account doesn't exist");
+  }
 };
 export const SignOut = () => {
   console.log("Signing Out");

@@ -12,20 +12,31 @@ import {
 } from "react-native";
 import { showLocation } from "react-native-map-link";
 import { Image, Avatar, Input, Icon } from 'react-native-elements';
+import { SignOut } from "../firestore";
 
 import { createStackNavigator } from '@react-navigation/stack';
 
 const Stack = createStackNavigator();
 
-export const Profile = ({ route }) => {
+export const Profile = ({ route,navigation }) => {
     return (
         <Stack.Navigator>
             <Stack.Screen name="Profile Screen"
                 options={{
                     title: "Profile",
-                    headerStyle: {
-                        borderBottomWidth: 0.5
-                    },
+                    headerRight: () =>
+                    (
+                        <TouchableOpacity onPress={() => {
+                            SignOut();
+                            navigation.replace("Login");
+                        }}
+                        ><Icon name="logout" type="material-community"
+                            style={{ marginRight: "5%" }}
+                            size={32} color={"blue"} />
+                        </TouchableOpacity>
+
+                    )
+
                 }} component={ProfileScreem} />
         </Stack.Navigator>
     );

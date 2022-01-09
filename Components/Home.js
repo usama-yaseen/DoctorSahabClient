@@ -10,12 +10,10 @@ import { Profile } from './PostLogin/Profile';
 import { styles } from '../Styles/HomeStyles';
 
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
 
 const Tab = createMaterialBottomTabNavigator();
 
-export const Home = () => {
+export const Home = ({route}) => {
     const [TabBarHeight, setTabBarHeight] = React.useState(null);
     return (
         <Tab.Navigator
@@ -28,7 +26,7 @@ export const Home = () => {
             <Tab.Screen
                 name="Chats"
                 component={Chats}
-                initialParams={{ setTabBarHeight: setTabBarHeight }}
+                initialParams={{ setTabBarHeight: setTabBarHeight, Email: route.params.Email }}
                 options={{
                     tabBarIcon: ({ color }) => (
                         <Icon name="chat-outline" type="material-community" color={color} size={24} />

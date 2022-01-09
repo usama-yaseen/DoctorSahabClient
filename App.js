@@ -50,7 +50,7 @@ export default function App() {
         <Stack.Screen name="Forgot Password" component={ForgotPassword} />
         <Stack.Screen name="Signup" component={Signup} />
         <Stack.Screen name="Verification" component={VerificationScreen} />
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Home" component={Home} initialParams={{ Email: CurrentUser.email }} />
       </Stack.Navigator>
     </ NavigationContainer >
   );
