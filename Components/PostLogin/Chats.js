@@ -13,18 +13,10 @@ import { Image, Avatar, Icon, Input } from "react-native-elements";
 import { createStackNavigator } from "@react-navigation/stack";
 import { onSnapshot } from "firebase/firestore";
 import { useState, useEffect } from "react";
-import { LogBox } from 'react-native';
+import { LogBox } from "react-native";
 import { db } from "../firestore";
-import {
-  collection,
-  query,
-  getDocs,
-  where,
-  doc
-} from "firebase/firestore";
-import {
-  getAuth,
-} from "firebase/auth";
+import { collection, query, getDocs, where, doc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 LogBox.ignoreAllLogs();
 
 const auth = getAuth();
@@ -32,9 +24,7 @@ import { Send_Message, get_Chats } from "../Chating";
 
 const Messages = ({ route, navigation }) => {
   navigation.setOptions({
-    headerTitle: (
-      props
-    ) => (
+    headerTitle: (props) => (
       <TouchableOpacity style={{ flexDirection: "row", alignItems: "center" }}>
         <Avatar size={48} rounded source={require("../../assets/dp.png")} />
         <Text style={MessagesStyles.headerAviImg}>{route.params.Name}</Text>
@@ -67,30 +57,36 @@ const Messages = ({ route, navigation }) => {
     Camera: false,
     Mic: false,
     Send: true,
-    InputWidth: '50%'
-  })
+    InputWidth: "50%",
+  });
   const [messages, setMessages] = useState([]);
 
   const [isLoading, setLoading] = React.useState(true);
 
   useEffect(async () => {
-    const q = query(collection(db, "Messages"), where("Client_id", "==", auth.currentUser.email), where("Doctor_id", "==", route.params.Email));
+    const q = query(
+      collection(db, "Messages"),
+      where("Client_id", "==", auth.currentUser.email),
+      where("Doctor_id", "==", route.params.Email)
+    );
     const querySnapshot = await getDocs(q);
     let id_Found = false;
     querySnapshot.forEach((data) => {
       id = data.id;
-      id_Found = true
-      setMessages(data.data())
-      setLoading(false)
-    })
+      id_Found = true;
+      setMessages(data.data());
+      setLoading(false);
+    });
     if (id_Found) {
-      const unsubscribe = onSnapshot(doc(db, "Messages", id), (querySnapshot) => {
-        if (id_Found)
-          id_Found = false
-        else {
-          setMessages(querySnapshot.data())
+      const unsubscribe = onSnapshot(
+        doc(db, "Messages", id),
+        (querySnapshot) => {
+          if (id_Found) id_Found = false;
+          else {
+            setMessages(querySnapshot.data());
+          }
         }
-      });
+      );
       return () => unsubscribe();
     }
   }, []);
@@ -134,9 +130,9 @@ const Messages = ({ route, navigation }) => {
                 Gallary: true,
                 Camera: true,
                 Mic: true,
-                Send: false
-              }
-              setIconDisabled(temp)
+                Send: false,
+              };
+              setIconDisabled(temp);
             }
             if (text.length == 0) {
               let temp = {
@@ -144,9 +140,9 @@ const Messages = ({ route, navigation }) => {
                 Gallary: false,
                 Camera: false,
                 Mic: false,
-                Send: true
-              }
-              setIconDisabled(temp)
+                Send: true,
+              };
+              setIconDisabled(temp);
             }
             onChangeMsg(text);
           }}
@@ -166,27 +162,41 @@ const Messages = ({ route, navigation }) => {
           disabled={IconDisabled.Send}
           disabledStyle={{ width: 0, height: 0 }}
           onPress={() => {
-
             var today = new Date();
-            var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-            var dateTime = date + ' ' + time;
+            var date =
+              today.getFullYear() +
+              "-" +
+              (today.getMonth() + 1) +
+              "-" +
+              today.getDate();
+            var time =
+              today.getHours() +
+              ":" +
+              today.getMinutes() +
+              ":" +
+              today.getSeconds();
+            var dateTime = date + " " + time;
 
-            let new_msg = { type: 'Message', text: msg, Sender: "Client", time: dateTime }
+            let new_msg = {
+              type: "Message",
+              text: msg,
+              Sender: "Client",
+              time: dateTime,
+            };
 
-            Send_Message(route.params.Email, new_msg, time)
+            Send_Message(route.params.Email, new_msg, time);
             let temp_arr = messages;
-            temp_arr.Msgs.push(new_msg)
-            setMessages(temp_arr)
+            temp_arr.Msgs.push(new_msg);
+            setMessages(temp_arr);
             onChangeMsg("");
             let temp = {
               InputWidth: "50%",
               Gallary: false,
               Camera: false,
               Mic: false,
-              Send: true
-            }
-            setIconDisabled(temp)
+              Send: true,
+            };
+            setIconDisabled(temp);
           }}
           color="blue"
         />
@@ -233,12 +243,15 @@ const TextMessage = (props) => {
     >
       {props.Data.type == "Message" ? (
         <Text
-          style={[MessagesStyles.TextMessageText, {
-            color: sent ? "white" : "black",
-            backgroundColor: sent ? "#5D19FC" : "#EEEEEE",
-            borderTopLeftRadius: sent ? 10 : 0,
-            borderTopRightRadius: sent ? 0 : 10,
-          }]}
+          style={[
+            MessagesStyles.TextMessageText,
+            {
+              color: sent ? "white" : "black",
+              backgroundColor: sent ? "#5D19FC" : "#EEEEEE",
+              borderTopLeftRadius: sent ? 10 : 0,
+              borderTopRightRadius: sent ? 0 : 10,
+            },
+          ]}
         >
           {props.Data.text}
         </Text>
@@ -257,9 +270,8 @@ export const ChatList = ({ route, navigation }) => {
   const [isLoading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    get_Chats(setChats, setLoading,route.params.Email);
-  }, [])
-
+    get_Chats(setChats, setLoading, route.params.Email);
+  }, []);
 
   if (isLoading) {
     return (
@@ -307,7 +319,7 @@ const Chat = (props) => {
         props.navigation.navigate("Messages", {
           setTabBarHeight: props.setTabBarHeight,
           Email: props.Doctor_id,
-          Name: props.Name
+          Name: props.Name,
         });
       }}
     >
@@ -333,7 +345,10 @@ export const Chats = ({ route }) => {
       <Stack.Navigator initialRouteName="ChatList">
         <Stack.Screen
           name="ChatList"
-          initialParams={{ setTabBarHeight: route.params.setTabBarHeight }}
+          initialParams={{
+            setTabBarHeight: route.params.setTabBarHeight,
+            Email: route.params.Email,
+          }}
           options={{
             title: "Chats",
             headerStyle: {
