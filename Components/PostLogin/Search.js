@@ -5,6 +5,7 @@ import {
   Text,
   View,
   ScrollView,
+  ActivityIndicator,
   StyleSheet,
   SafeAreaView,
   FlatList,
@@ -17,7 +18,7 @@ import {
 import { Avatar, Icon, Input } from "react-native-elements";
 
 import { createStackNavigator } from "@react-navigation/stack";
-import { SaveAppointment, SearchGigs } from "../firestore";
+import { SaveAppointment, SearchGigs, getDoctorDetails } from "../firestore";
 import { showLocation } from "react-native-map-link";
 
 
@@ -52,6 +53,7 @@ export const Search = ({ route }) => {
           name="Search "
           initialParams={{
             setTabBarHeight: route.params.setTabBarHeight,
+            MyDetails: route.params.MyDetails,
           }}
           options={{
             headerTitleAlign: "center",
@@ -87,7 +89,7 @@ const SearchScreen = ({ navigation, route }) => {
         <Text style={SearchStyles.TopText}>
           Find a best doctor{"\n"}near you
         </Text>
-        <Avatar size={64} rounded source={require("../../assets/icon.png")} />
+        <Avatar size={64} rounded source={{ uri: route.params.MyDetails.Profile_Url }} />
       </View>
       <Input
         containerStyle={SearchStyles.InputContainer}
@@ -129,7 +131,8 @@ const SearchScreen = ({ navigation, route }) => {
           keyExtractor={(data, index) => index.toString()}
           renderItem={(x) => (
             <Gig
-              data={x.item}
+              data={x.item.data}
+              id={x.item.id}
               setTabBarHeight={route.params.setTabBarHeight}
               navigation={navigation}
             />
@@ -152,7 +155,7 @@ const Gig = (props) => {
             {props.data.Doctor_Designation}
           </Text>
         </View>
-        <Avatar rounded size={64} source={require("../../assets/dp.png")} />
+        <Avatar rounded size={64} source={{ uri: `${props.data.Doctor_Image}` }} />
       </View>
 
       <View style={{ flexDirection: "row", justifyContent: "flex-start" }}>
@@ -167,6 +170,8 @@ const Gig = (props) => {
             props.setTabBarHeight(0);
             props.navigation.navigate("ServiceDetails", {
               setTabBarHeight: props.setTabBarHeight,
+              Data: props.data,
+              id: props.id
             });
           }}
         >
@@ -178,10 +183,12 @@ const Gig = (props) => {
 };
 
 const ServiceDetails = ({ navigation, route }) => {
+  let [DocData, setDocData] = React.useState([]);
   const [Problem, setProblem] = React.useState("");
   const [Description, setDescription] = React.useState("");
   const [errormsgProb, seterrormsgProb] = React.useState("");
   const [errormsgDes, seterrormsgDes] = React.useState("");
+  const [isLoading, setLoading] = React.useState(true);
 
   navigation.setOptions({
     headerLeft: () => (
@@ -199,7 +206,7 @@ const ServiceDetails = ({ navigation, route }) => {
 
   const MakeAppointment = () => {
     if (Problem.length != 0 && Description.length != 0) {
-      SaveAppointment(Description, "doctor", "Name", "id", Problem);
+      SaveAppointment(Description, DocData.Designation, DocData.profileurl, DocData.Name, route.params.Data.Doctor_id, Problem, route.params.id, navigation);
     }
     if (Problem.length == 0) {
       seterrormsgProb("Can't Be Empty");
@@ -211,19 +218,37 @@ const ServiceDetails = ({ navigation, route }) => {
 
   React.useEffect(() => {
     route.params.setTabBarHeight(0);
+    getDoctorDetails(route.params.Data.Doctor_id, setDocData, setLoading)
   }, []);
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          padding: 20,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator size="large" color="green" />
+        <Text style={{ fontSize: 32 }}>Loading Please Wait</Text>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={ServiceStyles.container}>
         <Avatar
           rounded
           style={{ width: "100%", aspectRatio: 1.75 / 1 }}
-          source={require("../../assets/dp.png")}
+          source={{ uri: DocData.profileurl }}
         />
         <View style={ServiceStyles.DrDetails}>
           <View>
-            <Text style={ServiceStyles.DrName}>Dr. Thomas Anthony</Text>
-            <Text style={ServiceStyles.DrDesignation}>Heart Surgeon</Text>
+            <Text style={ServiceStyles.DrName}>Dr. {DocData.Name}</Text>
+            <Text style={ServiceStyles.DrDesignation}>{DocData.Designation}</Text>
           </View>
 
           <Icon
@@ -239,35 +264,30 @@ const ServiceDetails = ({ navigation, route }) => {
           <View style={ServiceStyles.Achievements}>
             <Icon name="user" type="entypo" size={28} color="blue" />
             <Text>Patients</Text>
-            <Text style={ServiceStyles.Achievement_Text}>900+</Text>
+            <Text style={ServiceStyles.Achievement_Text}>{DocData.Patient}</Text>
           </View>
           <View style={ServiceStyles.Achievements}>
             <Icon name="medal" type="font-awesome-5" size={28} color="blue" />
             <Text>Experience</Text>
-            <Text style={ServiceStyles.Achievement_Text}> 10 Y+</Text>
+            <Text style={ServiceStyles.Achievement_Text}> {DocData.Experience} Y+</Text>
           </View>
           <View style={ServiceStyles.Achievements}>
             <Icon name="star" type="feather" size={28} color="blue" />
             <Text>Rating</Text>
-            <Text style={ServiceStyles.Achievement_Text}>Avg 4.5</Text>
+            <Text style={ServiceStyles.Achievement_Text}>Avg {DocData.Ratings}</Text>
           </View>
         </View>
 
         <View style={ServiceStyles.GigDescriptionContainer}>
           <Text style={ServiceStyles.Headings_Text}>Gig Details</Text>
-          <Text style={{ fontSize: 16 }}>
-            It has survived not only five centuries, but also the leap into
-            electronic typesetting, remaining essentially unchanged. It was
-            popularised in the 1960s with the release of Letraset sheets
-            containing Lorem Ipsum passages, and more recently with desktop
-            publishing software like Aldus PageMaker including versions of Lorem
-            Ipsum.
+          <Text style={{ fontSize: 16, textAlign: 'center' }}>
+            {route.params.Data.Description}
           </Text>
         </View>
 
         <View style={ServiceStyles.CostContainer}>
           <Text style={ServiceStyles.CostText}>Cost</Text>
-          <Text style={ServiceStyles.CostPrice}>100$</Text>
+          <Text style={ServiceStyles.CostPrice}>{route.params.Data.Cost}</Text>
         </View>
         <View style={ServiceStyles.BookingDetails}>
           <Text style={{ fontSize: 16 }}>Want to Book? Enter the Details</Text>

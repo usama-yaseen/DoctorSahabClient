@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { Linking } from 'react-native'
 import { MessagesStyles } from "../../Styles/PostLoginStyles/ChatsStyles";
 import { ChatStyles } from "../../Styles/PostLoginStyles/ChatsStyles";
 import { Image, Avatar, Icon, Input } from "react-native-elements";
@@ -42,13 +43,25 @@ const Messages = ({ route, navigation }) => {
       />
     ),
     headerRight: () => (
-      <Icon
-        name="phone-call"
-        type="feather"
-        style={{ marginRight: 15 }}
-        color={"blue"}
-        size={24}
-      />
+      <TouchableOpacity onPress={() => {
+        let phoneNumber = "03014749335";
+        if (phoneNumber == null) {
+          alert(
+            "No Number Found"
+          )
+        }
+        else {
+          Linking.openURL(`tel:${phoneNumber}`)
+        }
+      }}>
+        <Icon
+          name="phone-call"
+          type="feather"
+          style={{ marginRight: 15 }}
+          color={"blue"}
+          size={24}
+        />
+      </TouchableOpacity>
     ),
   });
   const [msg, onChangeMsg] = React.useState("");
@@ -265,13 +278,23 @@ const TextMessage = (props) => {
     </View>
   );
 };
+
 export const ChatList = ({ route, navigation }) => {
   let [Chats, setChats] = useState([]);
   const [isLoading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    get_Chats(setChats, setLoading, route.params.Email);
+    get_Chats(setChats, setLoading, route.params.MyDetails.email);
   }, []);
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setLoading(true)
+      get_Chats(setChats, setLoading, route.params.MyDetails.email)
+    })
+
+    return unsubscribe;
+  },[]);
 
   if (isLoading) {
     return (
@@ -347,7 +370,7 @@ export const Chats = ({ route }) => {
           name="ChatList"
           initialParams={{
             setTabBarHeight: route.params.setTabBarHeight,
-            Email: route.params.Email,
+            MyDetails: route.params.MyDetails,
           }}
           options={{
             title: "Chats",

@@ -14,17 +14,18 @@ import { getLogin } from "./Components/AsyncStorage";
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const InitializeSignin = (setCurrentUser, setLoading) => {
+const InitializeSignin = (setCurrentUser, setLoading,setUserEmail) => {
   // SignOut();
-  getLogin(setCurrentUser, setLoading);
+  getLogin(setCurrentUser, setLoading,setUserEmail);
 }
 
 const Stack = createNativeStackNavigator();
 export default function App() {
   const [isLoading, setLoading] = React.useState(true);
   const [CurrentUser, setCurrentUser] = React.useState(null);
+  const [UserEmail, setUserEmail] = React.useState(null);
   React.useState(() => {
-    InitializeSignin(setCurrentUser, setLoading);
+    InitializeSignin(setCurrentUser, setLoading,setUserEmail);
   }, [])
 
   if (isLoading) {
@@ -50,7 +51,7 @@ export default function App() {
         <Stack.Screen name="Forgot Password" component={ForgotPassword} />
         <Stack.Screen name="Signup" component={Signup} />
         <Stack.Screen name="Verification" component={VerificationScreen} />
-        <Stack.Screen name="Home" component={Home} initialParams={{ Email: CurrentUser.email }} />
+        <Stack.Screen name="Home" component={Home} initialParams={{ Email: UserEmail, MyDetails:CurrentUser }} />
       </Stack.Navigator>
     </ NavigationContainer >
   );

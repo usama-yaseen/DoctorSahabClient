@@ -6,7 +6,7 @@ import { getFirestore } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SaveLogin } from "./AsyncStorage";
 
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, addDoc, setDoc } from "firebase/firestore";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
 import {
@@ -133,6 +133,7 @@ export const deleteAccount = () => {
     "usamayak1@outlook.com",
     "testpassword"
   );
+
   if (auth.currentUser !== null) {
     reauthenticateWithCredential(auth.currentUser, cred)
       .then(() => {
@@ -141,7 +142,7 @@ export const deleteAccount = () => {
           .then(() => {
             console.log("User Deleted..");
           })
-          .catch((error) => {});
+          .catch((error) => { });
       })
       .catch((error) => {
         console.log(error.message);
@@ -168,38 +169,50 @@ export const SearchGigs = async (SearchName, setServicesList) => {
   let gigs_array = [];
   querySnapshot.forEach((data) => {
     if (data.data().Description.includes(SearchName)) {
-      gigs_array.push(data.data());
+      gigs_array.push({ data: data.data(), id: data.id });
     }
   });
   setServicesList(gigs_array);
 };
 
-export const SaveAppointment = async (Des, DocDes, DocName, DocId, Prob) => {
-  addDoc(doc(collection(db, "Appointments")), {
-    Client_Name: "Usama",
-    Client_id: auth.currentUser.email,
-    Description: Des,
-    Doctor_Designation: DocDes,
-    Doctor_Img: "unknown",
-    Doctor_Name: DocName,
-    Doctor_id: DocId,
-    Problem: Prob,
-  });
-  addDoc(doc(collection(db, "Messages")), {
-    Active: true,
-    Client_Name: "Usama",
-    Client_id: auth.currentUser.email,
-    Doctor_Name: DocName,
-    Doctor_id: DocId,
-    Last_Msg: "",
-    Msgs: [],
-  });
+export const SaveAppointment = async (Des, DocDes, profileurl, DocName, DocId, Prob, id, navigation) => {
+
+  console.log(auth.currentUser.displayName)
+  try {
+    addDoc(collection(db, "Appointments"), {
+      Client_Name: auth.currentUser.displayName,
+      Client_id: auth.currentUser.email,
+      Description: Des,
+      Doctor_Designation: DocDes,
+      Doctor_Img: profileurl,
+      Doctor_Name: DocName,
+      Doctor_id: DocId,
+      Gig_id: id,
+      Problem: Prob,
+    });
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+  try {
+    addDoc(collection(db, "Messages"), {
+      Active: true,
+      Client_Name: auth.currentUser.displayName,
+      Client_id: auth.currentUser.email,
+      Doctor_Name: DocName,
+      Doctor_id: DocId,
+      Last_Msg: "",
+      Msgs: [],
+    });
+  } catch (e) {
+    console.error("Error adding Message document: ", e);
+  }
+  navigation.replace("Appointments");
 };
 
 export const getAppointments = async (setAppointmentsList, setLoading) => {
   const q = query(
     collection(db, "Appointments"),
-    where("Client_id", "==", "usamayaseen07@gmail.com")
+    where("Client_id", "==", auth.currentUser.email)
   );
   const querySnapshot = await getDocs(q);
 
@@ -210,3 +223,17 @@ export const getAppointments = async (setAppointmentsList, setLoading) => {
   setAppointmentsList(Appointments_array);
   setLoading(false);
 };
+
+export const getDoctorDetails = async (Doctor_id, setDocData, setLoading) => {
+  const docSnap = await getDoc(doc(db, "Doctors", Doctor_id));
+  setDocData(docSnap.data())
+  setLoading(false)
+}
+
+export const getAppointmentDetails = async (Doctor_id, Gig_id, setDocData, setgigData, setLoading) => {
+  const docSnap = await getDoc(doc(db, "Doctors", Doctor_id));
+  setDocData(docSnap.data())
+  const gigSnap = await getDoc(doc(db, "Gigs", Gig_id));
+  setgigData(gigSnap.data())
+  setLoading(false)
+}

@@ -11,7 +11,8 @@ import {
   arrayRemove,
   getDoc, updateDoc, doc
 } from "firebase/firestore";
-
+import { getAuth } from "firebase/auth";
+const auth=getAuth();
 
 export const Send_Message = async (Doctor, new_msg, time) => {
   const q = query(collection(db, "Messages"), where("Client_id", "==", auth.currentUser.email), where("Doctor_id", "==", Doctor));

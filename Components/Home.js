@@ -41,7 +41,7 @@ export const Home = ({ route }) => {
         component={Chats}
         initialParams={{
           setTabBarHeight: setTabBarHeight,
-          Email: route.params.Email,
+          MyDetails:route.params.MyDetails,
         }}
         options={{
           tabBarIcon: ({ color }) => (
@@ -59,6 +59,7 @@ export const Home = ({ route }) => {
         component={Search}
         initialParams={{
           setTabBarHeight: setTabBarHeight,
+          MyDetails:route.params.MyDetails,
         }}
         options={{
           tabBarIcon: ({ color }) => (
@@ -89,7 +90,7 @@ export const Home = ({ route }) => {
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="CallHistoy"
         component={CallHistory}
         options={{
@@ -97,7 +98,7 @@ export const Home = ({ route }) => {
             <Icon name="phone-call" type="feather" color={color} size={24} />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="Profile"
         component={Profile}
