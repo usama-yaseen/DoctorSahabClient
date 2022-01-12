@@ -10,10 +10,9 @@ import {
   TouchableOpacity,
   Button,
 } from "react-native";
-import { showLocation } from "react-native-map-link";
 import { Image, Avatar, Input, Icon } from "react-native-elements";
 import { SignOut } from "../firestore";
-
+import {EditProfileScreen} from "./EditProfile"
 import { createStackNavigator } from "@react-navigation/stack";
 
 const Stack = createStackNavigator();
@@ -23,6 +22,9 @@ export const Profile = ({ route, navigation }) => {
     <Stack.Navigator>
       <Stack.Screen
         name="Profile Screen"
+        initialParams={{
+          MyDetails: route.params.MyDetails,
+        }}
         options={{
           title: "Profile",
           headerRight: () => (
@@ -44,29 +46,18 @@ export const Profile = ({ route, navigation }) => {
         }}
         component={ProfileScreem}
       />
+      <Stack.Screen
+        name="EditProfile"
+        initialParams={{
+          MyDetails: route.params.MyDetails,
+        }}
+        options={{
+          title: "Edit ",
+        }}
+        component={EditProfileScreen}
+      />
     </Stack.Navigator>
   );
-};
-
-const openmaps = () => {
-  showLocation({
-    latitude: 33.7028,
-    longitude: 73.0533,
-    sourceLatitude: 33.6518, // optionally specify starting location for directions
-    sourceLongitude: 73.1566, // not optional if sourceLatitude is specified
-    title: "Comsats", // optional
-    googleForceLatLon: false, // optionally force GoogleMaps to use the latlon for the query instead of the title
-    googlePlaceId: "ChIJGVtI4by3t4kRr51d_Qm_x58", // optionally specify the google-place-id
-    alwaysIncludeGoogle: true, // optional, true will always add Google Maps to iOS and open in Safari, even if app is not installed (default: false)
-    dialogTitle: "This is the dialog Title", // optional (default: 'Open in Maps')
-    dialogMessage: "This is the amazing dialog Message", // optional (default: 'What app would you like to use?')
-    cancelText: "This is the cancel button text", // optional (default: 'Cancel')
-    appsWhiteList: ["google-maps"], // optionally you can set which apps to show (default: will show all supported apps installed on device)
-    naverCallerName: "com.example.myapp", // to link into Naver Map You should provide your appname which is the bundle ID in iOS and applicationId in android.
-    // appTitles: { 'google-maps': 'My custom Google Maps title' }, // optionally you can override default app titles
-    // app: 'uber',  // optionally specify specific app to use
-    directionsMode: "walk", // optional, accepted values are 'car', 'walk', 'public-transport' or 'bike'
-  });
 };
 
 const ProfileScreem = ({ navigation, route }) => {
@@ -85,165 +76,23 @@ const ProfileScreem = ({ navigation, route }) => {
           source={require("../../assets/dp.png")}
         />
 
-        <View
-          style={{
-            marginVertical: "5%",
-            width: "100%",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 22,
-              fontWeight: "bold",
-              alignSelf: "flex-start",
-            }}
-          >
-            Dr. Thomas Anthony
-          </Text>
-          <Text
-            style={{
-              fontSize: 16,
-              color: "grey",
-              alignSelf: "flex-start",
-            }}
-          >
-            Heart Surgeon
-          </Text>
-        </View>
+        <Text style={styles.profilename}>Dr. {route.params.MyDetails.displayName}</Text>
+        <View style={styles.holder}>
+          <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('EditProfile')}>
 
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-            marginVertical: "5%",
-            width: "100%",
-          }}
-        >
-          <View style={styles.Achievments_Container}>
-            <Icon name="user" type="entypo" size={28} color="blue" />
-            <Text>Patients</Text>
-            <Text
-              style={{
-                fontWeight: "bold",
-              }}
-            >
-              900+
-            </Text>
-          </View>
-          <View style={styles.Achievments_Container}>
-            <Icon name="medal" type="font-awesome-5" size={28} color="blue" />
-            <Text>Experience</Text>
-            <Text
-              style={{
-                fontWeight: "bold",
-              }}
-            >
-              10 Y+
-            </Text>
-          </View>
-          <View style={styles.Achievments_Container}>
-            <Icon name="star" type="feather" size={28} color="blue" />
-            <Text>Rating</Text>
-            <Text
-              style={{
-                fontWeight: "bold",
-              }}
-            >
-              Avg 4.5
-            </Text>
-          </View>
-        </View>
-
-        <View>
-          <Text
-            style={{
-              fontSize: 28,
-              fontWeight: "bold",
-            }}
-          >
-            Gig Details
-          </Text>
-          <Text
-            style={{
-              fontSize: 16,
-            }}
-          >
-            It has survived not only five centuries, but also the leap into
-            electronic typesetting, remaining essentially unchanged. It was
-            popularised in the 1960s with the release of Letraset sheets
-            containing Lorem Ipsum passages, and more recently with desktop
-            publishing software like Aldus PageMaker including versions of Lorem
-            Ipsum.
-          </Text>
-
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <View>
-              <Text
-                style={{
-                  fontSize: 42,
-                  fontWeight: "bold",
-                }}
-              >
-                Cost
-              </Text>
-              <Text
-                style={{
-                  fontSize: 24,
-                }}
-              >
-                100$
-              </Text>
-            </View>
-
-            <Icon
-              name="direction"
-              type="entypo"
-              size={48}
-              color={"blue"}
-              onPress={() => openmaps()}
-            />
-          </View>
-        </View>
-        <View
-          style={{
-            width: "100%",
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              width: 150,
-              height: 50,
-              padding: 5,
-              alignSelf: "center",
-              borderRadius: 15,
-              justifyContent: "center",
-              alignItems: "center",
-              marginVertical: "5%",
-              backgroundColor: "orange",
-            }}
-            onPress={() => openmaps()}
-          >
-            <Text
-              style={{
-                alignSelf: "center",
-                fontWeight: "bold",
-                fontSize: 16,
-                color: "white",
-              }}
-            >
-              Book Appointment
-            </Text>
+            <Text style={styles.btntext}>Edit Account</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={() => alert("Pressed Help")}>
+            <Text style={styles.btntext}>Help</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ height: 50, width: '100%', justifyContent: "center" }}
+            onPress={() => alert("Pressed About")}>
+            <Text style={styles.btntext}>About</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
       {/* </ImageBackground> */}
-    </SafeAreaView>
+    </SafeAreaView >
   );
 };
 
@@ -253,25 +102,30 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "white",
   },
-  Achievments_Container: {
-    backgroundColor: "white",
-    width: 100,
-    height: 120,
-    borderRadius: 10,
-    paddingVertical: "2%",
-    justifyContent: "space-evenly",
-    elevation: 5,
-    alignItems: "center",
+  profilename: {
+    fontWeight: "bold",
+    alignSelf: "center",
+    fontSize: 30,
+    marginTop: 10
   },
-  getAddress: {
-    height: 50,
-    padding: 10,
-    paddingHorizontal: 15,
+  holder: {
+    backgroundColor: "#f8f8f8",
+    borderWidth: 0.9,
     borderRadius: 15,
-    justifyContent: "center",
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-end",
-    backgroundColor: "blue",
+    borderColor: "#cfcfcf",
+    marginHorizontal: 20,
+    marginVertical: "20%",
+    width: '90%'
   },
+  btn: {
+    height: 50,
+    width: '100%',
+    borderBottomWidth: 0.9,
+    justifyContent: "center",
+    borderColor: "#cfcfcf",
+  },
+  btntext: {
+    fontSize: 18,
+    textAlign: 'center'
+  }
 });

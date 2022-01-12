@@ -79,7 +79,7 @@ export const SignIn = async (userEmail, userPass, setResponse, navigation) => {
         const user = userCredential.user;
         SaveLogin(user);
         if (user.emailVerified)
-          navigation.replace("Home", { Email: userEmail });
+          navigation.replace("Home", { Email: userEmail,MyDetails:user });
         else {
           navigation.navigate("Verification", { tempuser: user });
         }
@@ -236,4 +236,12 @@ export const getAppointmentDetails = async (Doctor_id, Gig_id, setDocData, setgi
   const gigSnap = await getDoc(doc(db, "Gigs", Gig_id));
   setgigData(gigSnap.data())
   setLoading(false)
+}
+
+export const updateClientProfile = () => {
+  let user = auth.currentUser;
+  updateProfile(user, {
+    displayName: Name,
+  });
+
 }

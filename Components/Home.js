@@ -101,6 +101,10 @@ export const Home = ({ route }) => {
       /> */}
       <Tab.Screen
         name="Profile"
+        initialParams={{
+          setTabBarHeight: setTabBarHeight,
+          MyDetails:route.params.MyDetails,
+        }}
         component={Profile}
         options={{
           tabBarIcon: ({ color }) => (
